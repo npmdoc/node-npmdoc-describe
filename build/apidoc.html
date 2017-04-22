@@ -1,0 +1,226 @@
+<div class="apidocDiv">
+<style>
+/*csslint
+*/
+.apidocDiv {
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.apidocDiv a[href] {
+    color: #33f;
+    font-weight: bold;
+    text-decoration: none;
+}
+.apidocDiv a[href]:hover {
+    text-decoration: underline;
+}
+.apidocCodeCommentSpan {
+    background: #bbf;
+    color: #000;
+    display: block;
+}
+.apidocCodeKeywordSpan {
+    color: #d00;
+    font-weight: bold;
+}
+.apidocCodePre {
+    background: #eef;
+    border: 1px solid;
+    color: #777;
+    padding: 5px;
+    white-space: pre-wrap;
+}
+.apidocFooterDiv {
+    margin-top: 20px;
+    text-align: center;
+}
+.apidocModuleLi {
+    margin-top: 10px;
+}
+.apidocSectionDiv {
+    border-top: 1px solid;
+    margin-top: 20px;
+}
+.apidocSignatureSpan {
+    color: #777;
+    font-weight: bold;
+}
+</style>
+<h1>api documentation for
+    <a
+
+        href="http://github.com/yuffster/describe"
+
+    >describe (v1.2.0)</a>
+</h1>
+<h4>An extremely lightweight method for running tests.</h4>
+<div class="apidocSectionDiv"><a
+    href="#apidoc.tableOfContents"
+    id="apidoc.tableOfContents"
+><h1>table of contents</h1></a><ol>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.describe">module describe</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.describe.describe">
+            function <span class="apidocSignatureSpan"></span>describe
+            <span class="apidocSignatureSpan">(name, tests, config)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.describe.config">
+            function <span class="apidocSignatureSpan">describe.</span>config
+            <span class="apidocSignatureSpan">(k, v)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.describe.getResults">
+            function <span class="apidocSignatureSpan">describe.</span>getResults
+            <span class="apidocSignatureSpan">(cb)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.describe.logResults">
+            function <span class="apidocSignatureSpan">describe.</span>logResults
+            <span class="apidocSignatureSpan">()</span>
+            </a>
+
+        </li>
+
+    </ol></li>
+
+</ol></div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.describe" id="apidoc.module.describe">module describe</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.describe.describe" id="apidoc.element.describe.describe">
+        function <span class="apidocSignatureSpan"></span>describe
+        <span class="apidocSignatureSpan">(name, tests, config)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function describe(name, tests, config) {
+		pendingGroups++;
+		new Group(name, tests, config).execute(function(data) {
+			results.results[name] = data;
+			results.total  += data.total;
+			results.passed += data.passed;
+			for (var k in data.errors) {
+				results.errors[name+&#x27;#&#x27;+k] = data.errors[k];
+			}
+			pendingGroups--;
+			if (pendingGroups===0) {
+				var next = resultCallbacks.shift();
+				while (next) {
+					next(results);
+					next = resultCallbacks.shift();
+				}
+			}
+		});
+	}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.describe.config" id="apidoc.element.describe.config">
+        function <span class="apidocSignatureSpan">describe.</span>config
+        <span class="apidocSignatureSpan">(k, v)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">config = function (k, v) {
+		if (v) options[k] = v;
+		return options[k] || false;
+	}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+	- timeout (int): The max amount of time in milliseconds to wait for a test
+to run before timing out.
+	- callbackMode (string): if set to &#x27;node&#x27;, this.expect will treat the first
+argument to the callback as an error and the second argument as the result.
+
+### describe.config
+
+describe.<span class="apidocCodeKeywordSpan">config</span>( *key*, *value* )
+
+Sets the global configuration for tests.
+
+### Synchronous Assertions
+
+this.expect( *subject*, *expected* )
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.describe.getResults" id="apidoc.element.describe.getResults">
+        function <span class="apidocSignatureSpan">describe.</span>getResults
+        <span class="apidocSignatureSpan">(cb)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">getResults = function (cb) {
+		if (pendingGroups===0) cb(results);
+		else resultCallbacks[resultCallbacks.length] = cb;
+	}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+	describe.getResults = function(cb) {
+		if (pendingGroups===0) cb(results);
+		else resultCallbacks[resultCallbacks.length] = cb;
+	};
+
+	describe.logResults = function() {
+		describe.<span class="apidocCodeKeywordSpan">getResults</span>(function(data) {
+			if (typeof window !== &#x22;undefined&#x22;) outputDOM(data, options);
+			else outputConsole(data, options);
+		});
+	};
+
+	if (isModule) module.exports = describe;
+	else scope.describe = describe;
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.describe.logResults" id="apidoc.element.describe.logResults">
+        function <span class="apidocSignatureSpan">describe.</span>logResults
+        <span class="apidocSignatureSpan">()</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">logResults = function () {
+		describe.getResults(function(data) {
+			if (typeof window !== &#x22;undefined&#x22;) outputDOM(data, options);
+			else outputConsole(data, options);
+		});
+	}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+</div>
+
+<div class="apidocFooterDiv">
+    [ this document was created with
+    <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a>
+    ]
+</div>
+</div>
